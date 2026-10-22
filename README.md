@@ -5,7 +5,7 @@
 | | Технологии |
 |---|---|
 | **Бэкенд (ЛР1)** | Python 3.10+, FastAPI, SQLAlchemy 2, Pydantic 2, SQLite, pytest |
-| **Фронтенд (ЛР2)** | React 19, React Router 7, axios, Bootstrap 5 + Bootstrap Icons, Vite 8 |
+| **Фронтенд (ЛР2)** | React 19, React Router 7, axios, Bootstrap 5 + Bootstrap Icons, Vite 8; дизайн — UI-кит **MTUCI glass** (liquid glass, violet tint) |
 
 ---
 
@@ -304,3 +304,4 @@ export const patchMovie = (id, data) => http.patch(`/movies/${id}`, data).then((
 | ![Детали](docs/screenshots/13_details.png) Детали фильма с обложкой | ![Удаление](docs/screenshots/14_delete_modal.png) Подтверждение удаления |
 | ![Жанры](docs/screenshots/16_genres.png) Жанры | ![Статистика](docs/screenshots/17_stats.png) Статистика |
 | ![Swagger](docs/screenshots/19_swagger.png) Swagger UI | ![ReDoc](docs/screenshots/21_redoc.png) ReDoc |
+| ![Импорт с Кинопоиска](docs/screenshots/22_kinopoisk_import.png) Импорт с Кинопоиска | ![Мобильная версия](docs/screenshots/18_mobile.png) Мобильная версия |

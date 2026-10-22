@@ -32,6 +32,9 @@ export default function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
+      <footer className="app-footer text-center pb-4">
+        <span>✦</span> Фильмотека · REST API + React · дизайн <span>MTUCI glass</span>
+      </footer>
     </>
   )
 }

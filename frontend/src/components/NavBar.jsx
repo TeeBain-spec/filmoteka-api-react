@@ -13,8 +13,8 @@ export default function NavBar() {
   return (
     <nav className="navbar navbar-expand navbar-dark app-navbar">
       <div className="container">
-        <Link className="navbar-brand fw-bold" to="/">🎬 Фильмотека</Link>
-        <ul className="navbar-nav me-auto flex-wrap">
+        <Link className="navbar-brand" to="/">🎬 <span className="brand-text d-none d-sm-inline">Фильмотека</span></Link>
+        <ul className="navbar-nav me-auto flex-wrap min-w-0">
           {links.map((l) => (
             <li className="nav-item" key={l.to}>
               <NavLink className="nav-link" to={l.to} end={l.end}>
