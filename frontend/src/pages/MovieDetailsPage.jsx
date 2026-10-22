@@ -104,6 +104,12 @@ export default function MovieDetailsPage() {
                   <i className={`bi ${movie.is_watched ? 'bi-check2-circle' : 'bi-bookmark'} me-1`} />
                   {movie.is_watched ? 'Просмотрен' : 'Отметить просмотренным'}
                 </button>
+                {movie.kp_id && (
+                  <a className="btn btn-outline-secondary" target="_blank" rel="noreferrer"
+                     href={`https://www.kinopoisk.ru/film/${movie.kp_id}/`}>
+                    <i className="bi bi-box-arrow-up-right me-1" /> На Кинопоиске
+                  </a>
+                )}
                 <button className="btn btn-outline-danger" onClick={() => setConfirm(true)}>
                   <i className="bi bi-trash me-1" /> Удалить
                 </button>

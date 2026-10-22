@@ -47,6 +47,7 @@ class Movie(Base):
     duration: Mapped[int] = mapped_column(Integer, nullable=False)  # минуты
     is_watched: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     poster_url: Mapped[str] = mapped_column(String(500), default="", nullable=False)  # обложка
+    kp_id: Mapped[int | None] = mapped_column(Integer, unique=True, nullable=True)  # id на Кинопоиске
     genre_id: Mapped[int] = mapped_column(
         ForeignKey("genres.id", ondelete="RESTRICT"), nullable=False, index=True
     )

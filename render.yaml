@@ -7,3 +7,8 @@ services:
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/health
     autoDeploy: true
+    envVars:
+      - key: KINOPOISK_API_KEY   # ключ «ПоискКино» (Telegram @poiskkinodev_bot); вводится в панели Render
+        sync: false
+      - key: KINOPOISK_SEED_TOP  # сколько фильмов топа Кинопоиска загрузить в пустую базу
+        value: "100"

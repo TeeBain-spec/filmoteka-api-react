@@ -8,6 +8,7 @@ import pytest
 # отдельная временная БД для тестов — задаётся ДО импорта приложения
 _tmp = tempfile.mkdtemp()
 os.environ["DATABASE_URL"] = f"sqlite:///{Path(_tmp) / 'test.db'}"
+os.environ["KINOPOISK_API_KEY"] = ""  # тесты не ходят в настоящий Кинопоиск
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from fastapi.testclient import TestClient  # noqa: E402

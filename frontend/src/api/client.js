@@ -36,6 +36,15 @@ export const createGenre = (data) => http.post('/genres', data).then((r) => r.da
 export const updateGenre = (id, data) => http.put(`/genres/${id}`, data).then((r) => r.data)
 export const deleteGenre = (id) => http.delete(`/genres/${id}`)
 
+// ---------- Кинопоиск (внешний API через наш бэкенд; ключ хранится только на сервере)
+const KP_TIMEOUT = { timeout: 60000 }
+export const kpStatus = () => http.get('/kinopoisk/status').then((r) => r.data)
+export const kpSearch = (q, page = 1) =>
+  http.get('/kinopoisk/search', { params: { q, page, limit: 12 }, ...KP_TIMEOUT }).then((r) => r.data)
+export const kpImport = (kpId) => http.post(`/kinopoisk/import/${kpId}`, null, KP_TIMEOUT).then((r) => r.data)
+export const kpImportTop = (limit) =>
+  http.post('/kinopoisk/import-top', null, { params: { limit }, ...KP_TIMEOUT }).then((r) => r.data)
+
 // ---------- статистика
 export const getStats = () => http.get('/stats').then((r) => r.data)
 

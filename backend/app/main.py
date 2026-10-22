@@ -3,6 +3,7 @@
 Запуск:        uvicorn app.main:app --reload
 Документация:  http://127.0.0.1:8000/docs (Swagger UI),  http://127.0.0.1:8000/redoc (ReDoc)
 """
+import logging
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -12,32 +13,60 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, RedirectResponse
 from sqlalchemy import inspect, text
 
+from . import config, kinopoisk, seed
 from .database import Base, SessionLocal, engine
-from .routers import genres, movies, stats
-from .seed import fill_missing_posters, seed_if_empty
+from .routers import genres, kinopoisk as kinopoisk_router, movies, stats
+
+log = logging.getLogger("uvicorn.error")
 
 
-def _migrate() -> bool:
-    """Простейшая миграция: в базе, созданной до появления обложек, добавляем колонку.
-    Возвращает True, если колонка была добавлена."""
-    columns = {c["name"] for c in inspect(engine).get_columns("movies")}
-    if "poster_url" in columns:
-        return False
+NEW_COLUMNS = {  # колонки, добавленные после первой версии (простейшая миграция)
+    "poster_url": "VARCHAR(500) NOT NULL DEFAULT ''",
+    "kp_id": "INTEGER",
+}
+
+
+def _migrate() -> set[str]:
+    """Добавляет в старую базу недостающие колонки. Возвращает имена добавленных."""
+    existing = {c["name"] for c in inspect(engine).get_columns("movies")}
+    added = set()
     with engine.begin() as conn:
-        conn.execute(text(
-            "ALTER TABLE movies ADD COLUMN poster_url VARCHAR(500) NOT NULL DEFAULT ''"
-        ))
-    return True
+        for name, ddl in NEW_COLUMNS.items():
+            if name not in existing:
+                conn.execute(text(f"ALTER TABLE movies ADD COLUMN {name} {ddl}"))
+                added.add(name)
+        if "kp_id" in added:
+            conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS ix_movies_kp_id ON movies (kp_id)"))
+    return added
+
+
+def _seed(db) -> None:
+    """Пустая база: жанры + топ Кинопоиска (если есть ключ), иначе запасной список."""
+    seed.seed_genres(db)
+    db.commit()
+    if kinopoisk.enabled() and config.KINOPOISK_SEED_TOP > 0:
+        try:
+            imported, _ = kinopoisk.import_top(db, min(config.KINOPOISK_SEED_TOP, 250))
+            db.commit()
+            log.info("Загружено фильмов из топа Кинопоиска: %s", imported)
+            if imported:
+                return
+        except Exception as exc:  # Кинопоиск недоступен — не мешаем запуску
+            db.rollback()
+            log.warning("Не удалось загрузить топ Кинопоиска: %s", exc)
+    seed.seed_movies(db)
+    db.commit()
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     Base.metadata.create_all(bind=engine)  # создаём таблицы, если их нет
-    migrated = _migrate()
+    added = _migrate()
     with SessionLocal() as db:
-        seed_if_empty(db)  # стартовые данные
-        if migrated:
-            fill_missing_posters(db)  # обложки для фильмов из старой базы
+        if seed.is_empty(db):
+            _seed(db)
+        elif "poster_url" in added:
+            seed.fill_missing_posters(db)  # обложки для фильмов из старой базы
     yield
 
 
@@ -54,6 +83,7 @@ app = FastAPI(
         {"name": "Фильмы", "description": "Основная сущность"},
         {"name": "Жанры", "description": "Справочник жанров"},
         {"name": "Статистика", "description": "Агрегированные данные"},
+        {"name": "Кинопоиск", "description": "Поиск и импорт фильмов с Кинопоиска"},
     ],
 )
 
@@ -69,6 +99,7 @@ app.add_middleware(
 app.include_router(movies.router)
 app.include_router(genres.router)
 app.include_router(stats.router)
+app.include_router(kinopoisk_router.router)
 
 # ---------------------------------------------------------------------------
 # Онлайн-демо: если рядом лежит собранный React (frontend/dist), FastAPI отдаёт

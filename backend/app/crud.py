@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
 from . import models, schemas
+from .database import norm
 
 M = models.Movie
 G = models.Genre
@@ -38,7 +39,7 @@ def get_genre_or_404(db: Session, genre_id: int) -> models.Genre:
 
 
 def _ensure_genre_name_free(db: Session, name: str, exclude_id: int | None = None):
-    stmt = select(G.id).where(func.py_lower(G.name) == name.lower())
+    stmt = select(G.id).where(func.py_lower(G.name) == norm(name))
     if exclude_id is not None:
         stmt = stmt.where(G.id != exclude_id)
     if db.scalar(stmt) is not None:
@@ -106,7 +107,7 @@ def _movie_conditions(f: schemas.MovieFilter) -> list:
     conds = []
     if f.q:
         # поиск по названию без учёта регистра (в т. ч. кириллица — см. database.py)
-        conds.append(func.py_lower(M.title).like(f"%{_escape_like(f.q.lower())}%", escape="\\"))
+        conds.append(func.py_lower(M.title).like(f"%{_escape_like(norm(f.q))}%", escape="\\"))
     if f.genre_id is not None:
         conds.append(M.genre_id == f.genre_id)
     if f.year_from is not None:
@@ -164,7 +165,7 @@ def _check_movie(db: Session, title: str, year: int, genre_id: int,
                  exclude_id: int | None = None):
     if db.get(G, genre_id) is None:
         raise _validation_error("genre_id", f"Жанр с id={genre_id} не существует")
-    stmt = select(M.id).where(func.py_lower(M.title) == title.lower(), M.year == year)
+    stmt = select(M.id).where(func.py_lower(M.title) == norm(title), M.year == year)
     if exclude_id is not None:
         stmt = stmt.where(M.id != exclude_id)
     if db.scalar(stmt) is not None:

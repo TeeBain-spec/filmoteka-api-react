@@ -121,6 +121,7 @@ class MovieOut(BaseModel):
     duration: int
     is_watched: bool
     poster_url: str
+    kp_id: Optional[int] = Field(None, description="ID фильма на Кинопоиске (если импортирован)")
     genre_id: int
     genre_name: str
     created_at: datetime
@@ -189,6 +190,37 @@ class LibraryStats(BaseModel):
     total_duration: int = Field(..., description="Суммарная длительность, мин")
     by_genre: list[GenreStats]
     by_decade: list[DecadeStats]
+
+
+# ------------------------------------------------------------------ Кинопоиск
+class KpStatus(BaseModel):
+    enabled: bool = Field(..., description="Задан ли ключ KINOPOISK_API_KEY")
+    source: str
+
+
+class KpSearchItem(BaseModel):
+    kp_id: int
+    title: str
+    original_title: str = ""
+    year: Optional[int] = None
+    rating: Optional[float] = Field(None, description="Рейтинг Кинопоиска")
+    type: str = Field("", description="movie, cartoon, tv-series, anime …")
+    genres: list[str] = []
+    poster_url: str = ""
+    movie_id: Optional[int] = Field(None, description="ID в нашей фильмотеке, если фильм уже добавлен")
+
+
+class KpSearchPage(BaseModel):
+    items: list[KpSearchItem]
+    total: int
+    page: int
+    pages: int
+
+
+class KpImportResult(BaseModel):
+    imported: int = Field(..., description="Сколько фильмов добавлено")
+    skipped: int = Field(..., description="Сколько уже было в фильмотеке или не подошло")
+    total: int = Field(..., description="Всего фильмов в фильмотеке после импорта")
 
 
 class Message(BaseModel):

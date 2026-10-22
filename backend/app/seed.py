@@ -1,6 +1,7 @@
 """Стартовые данные фильмотеки. Загружаются, если база пустая.
 
-Рейтинги — ориентировочные (10-балльная шкала), для демонстрации работы API.
+Если задан ключ Кинопоиска, фильмы берутся из топ-250 Кинопоиска (см. main.py),
+а этот список используется как запасной вариант. Рейтинги в нём ориентировочные.
 """
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -90,19 +91,25 @@ POSTERS = {
 }
 
 
-def seed_if_empty(db: Session) -> None:
-    if db.scalar(select(func.count(Genre.id))):
-        return
-    genres = {name: Genre(name=name, description=desc) for name, desc in GENRES}
-    db.add_all(genres.values())
+def is_empty(db: Session) -> bool:
+    return not db.scalar(select(func.count(Genre.id)))
+
+
+def seed_genres(db: Session) -> None:
+    db.add_all(Genre(name=name, description=desc) for name, desc in GENRES)
     db.flush()
+
+
+def seed_movies(db: Session) -> None:
+    """Запасной список из 21 фильма (без обращения к Кинопоиску)."""
+    genres = {g.name: g for g in db.scalars(select(Genre))}
     for title, year, director, country, duration, rating, watched, genre, desc in MOVIES:
         db.add(Movie(
             title=title, year=year, director=director, country=country, duration=duration,
             rating=rating, is_watched=watched, genre_id=genres[genre].id, description=desc,
             poster_url=POSTERS.get(title, ""),
         ))
-    db.commit()
+    db.flush()
 
 
 def fill_missing_posters(db: Session) -> None:

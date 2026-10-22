@@ -7,6 +7,7 @@ import SearchPage from './pages/SearchPage.jsx'
 import MovieDetailsPage from './pages/MovieDetailsPage.jsx'
 import GenresPage from './pages/GenresPage.jsx'
 import StatsPage from './pages/StatsPage.jsx'
+import ImportPage from './pages/ImportPage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
           {/* Дополнительно */}
           <Route path="/genres" element={<GenresPage />} />
           <Route path="/stats" element={<StatsPage />} />
+          <Route path="/import" element={<ImportPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>

@@ -6,6 +6,7 @@ const links = [
   { to: '/search', label: 'Поиск', icon: 'bi-search' },
   { to: '/genres', label: 'Жанры', icon: 'bi-tags' },
   { to: '/stats', label: 'Статистика', icon: 'bi-bar-chart' },
+  { to: '/import', label: 'Кинопоиск', icon: 'bi-cloud-download' },
 ]
 
 export default function NavBar() {

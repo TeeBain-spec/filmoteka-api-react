@@ -181,3 +181,11 @@ body {
   position: sticky;
   top: 1rem;
 }
+
+.kp-poster {
+  width: 90px;
+  font-size: 2rem;
+}
+.min-w-0 {
+  min-width: 0;
+}

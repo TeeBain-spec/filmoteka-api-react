@@ -1,10 +1,8 @@
 """Подключение к базе данных SQLite через SQLAlchemy 2.0."""
-import os
-
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./movies.db")
+from .config import DATABASE_URL
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
@@ -16,8 +14,14 @@ def _on_connect(dbapi_conn, _record):
     # встроенная LOWER() в SQLite понимает только латиницу,
     # поэтому регистрируем свою функцию для регистронезависимого поиска по-русски
     dbapi_conn.create_function(
-        "py_lower", 1, lambda s: s.lower() if isinstance(s, str) else s, deterministic=True
+        "py_lower", 1, lambda s: norm(s) if isinstance(s, str) else s, deterministic=True
     )
+
+
+def norm(text: str) -> str:
+    """Нормализация для поиска и сравнения: нижний регистр, «ё» = «е»
+    («Зеленая миля» с Кинопоиска совпадёт с «Зелёной милей»)."""
+    return text.lower().replace("ё", "е")
 
 
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
