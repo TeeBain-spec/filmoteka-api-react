@@ -86,7 +86,7 @@ pytest -v
 │   │       ├── movies.py        /api/movies
 │   │       ├── genres.py        /api/genres
 │   │       └── stats.py         /api/stats, /api/health
-│   ├── tests/test_api.py        24 автотеста (pytest)
+│   ├── tests/test_api.py        25 автотестов (pytest)
 │   └── requirements.txt
 ├── frontend/                    ЛР2 — React-приложение
 │   ├── src/
@@ -108,6 +108,12 @@ pytest -v
 
 ---
 
+## Обложки фильмов
+
+У фильма есть поле `poster_url` — ссылка на картинку. Стартовые фильмы получают постеры из статей англоязычной Википедии (`upload.wikimedia.org`). Для своего фильма ссылку можно вставить в форме, превью появится сразу. Если ссылки нет или картинка не загрузилась, вместо обложки показывается значок жанра. База, созданная до появления обложек, обновляется автоматически при запуске сервера.
+
+---
+
 ## Модель данных
 
 **Genre** (жанр): `id`, `name` (уникальное, 2–50 символов), `description`, `created_at`
@@ -123,6 +129,7 @@ pytest -v
 | `rating` | число | 0–10, округляется до 0,1 |
 | `duration` | целое | 1–1000 минут |
 | `is_watched` | bool | просмотрен ли фильм |
+| `poster_url` | строка | ссылка на обложку (http/https), до 500 символов; можно оставить пустой |
 | `genre_id` | FK → genres | жанр должен существовать |
 | `description` | строка | до 1000 символов |
 
@@ -259,6 +266,6 @@ export const patchMovie = (id, data) => http.patch(`/movies/${id}`, data).then((
 | ![Валидация](docs/screenshots/04_form_validation.png) Проверка формы | ![Форма](docs/screenshots/05_form_filled.png) Добавление фильма |
 | ![Создан](docs/screenshots/06_details_created.png) Фильм добавлен | ![Ошибка 409](docs/screenshots/09_form_server_error.png) Ошибка сервера: дубликат |
 | ![Поиск](docs/screenshots/11_search_title.png) Поиск по названию | ![Фильтры](docs/screenshots/12_search_year_rating.png) Фильтр по году и рейтингу |
-| ![Детали](docs/screenshots/13_details.png) Детали фильма | ![Удаление](docs/screenshots/14_delete_modal.png) Подтверждение удаления |
+| ![Детали](docs/screenshots/13_details.png) Детали фильма с обложкой | ![Удаление](docs/screenshots/14_delete_modal.png) Подтверждение удаления |
 | ![Жанры](docs/screenshots/16_genres.png) Жанры | ![Статистика](docs/screenshots/17_stats.png) Статистика |
 | ![Swagger](docs/screenshots/19_swagger.png) Swagger UI | ![ReDoc](docs/screenshots/21_redoc.png) ReDoc |

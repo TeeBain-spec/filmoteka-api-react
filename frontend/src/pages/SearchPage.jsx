@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { errorMessage, getGenres, getMovies } from '../api/client.js'
 import Pagination from '../components/Pagination.jsx'
+import Poster from '../components/Poster.jsx'
 import RatingBadge from '../components/RatingBadge.jsx'
 import { formatDuration, genreIcon } from '../utils.js'
 
@@ -149,7 +150,7 @@ export default function SearchPage() {
                 <Link to={`/movies/${m.id}`} className="text-reset text-decoration-none">
                   <div className="card h-100 movie-card">
                     <div className="card-body d-flex flex-column">
-                      <div className="poster mb-3">{genreIcon(m.genre_name)}</div>
+                      <Poster url={m.poster_url} genre={m.genre_name} title={m.title} className="mb-3" />
                       <div className="d-flex justify-content-between align-items-start gap-2">
                         <h2 className="h6 fw-bold mb-1">{m.title}</h2>
                         <RatingBadge rating={m.rating} />

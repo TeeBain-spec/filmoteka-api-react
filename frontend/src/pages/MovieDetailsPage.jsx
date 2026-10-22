@@ -3,8 +3,9 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { deleteMovie, errorMessage, getMovie, patchMovie } from '../api/client.js'
 import ConfirmModal from '../components/ConfirmModal.jsx'
+import Poster from '../components/Poster.jsx'
 import RatingBadge from '../components/RatingBadge.jsx'
-import { formatDate, formatDuration, genreIcon } from '../utils.js'
+import { formatDate, formatDuration } from '../utils.js'
 
 export default function MovieDetailsPage() {
   const { id } = useParams()
@@ -68,7 +69,8 @@ export default function MovieDetailsPage() {
         <div className="card-body p-4">
           <div className="row g-4">
             <div className="col-md-auto">
-              <div className="poster poster-lg mx-auto">{genreIcon(movie.genre_name)}</div>
+              <Poster url={movie.poster_url} genre={movie.genre_name} title={movie.title}
+                      size="lg" className="mx-auto" />
             </div>
             <div className="col">
               <div className="d-flex flex-wrap justify-content-between align-items-start gap-3">

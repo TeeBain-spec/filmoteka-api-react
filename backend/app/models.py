@@ -46,6 +46,7 @@ class Movie(Base):
     rating: Mapped[float] = mapped_column(Float, nullable=False, index=True)  # 0–10
     duration: Mapped[int] = mapped_column(Integer, nullable=False)  # минуты
     is_watched: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    poster_url: Mapped[str] = mapped_column(String(500), default="", nullable=False)  # обложка
     genre_id: Mapped[int] = mapped_column(
         ForeignKey("genres.id", ondelete="RESTRICT"), nullable=False, index=True
     )

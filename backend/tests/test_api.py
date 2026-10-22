@@ -110,6 +110,16 @@ def test_bad_ranges(client):
     assert client.get("/api/movies", params={"min_rating": 9, "max_rating": 5}).status_code == 422
 
 
+def test_poster_url(client):
+    m = client.get("/api/movies/10").json()
+    assert m["title"] == "Матрица" and m["poster_url"].startswith("https://upload.wikimedia.org/")
+    r = client.post("/api/movies", json={**NEW_MOVIE, "poster_url": "ftp://bad"})
+    assert r.status_code == 422 and r.json()["detail"][0]["loc"][-1] == "poster_url"
+    url = "https://example.com/poster.jpg"
+    r = client.patch("/api/movies/10", json={"poster_url": url})
+    assert r.status_code == 200 and r.json()["poster_url"] == url
+
+
 # ------------------------------------------------------------------ поиск / фильтры
 def test_search_by_title_case_insensitive(client):
     r = client.get("/api/movies", params={"q": "МАТРИ"})

@@ -4,11 +4,12 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   createMovie, errorMessage, fieldErrors, getGenres, getMovie, updateMovie,
 } from '../api/client.js'
+import Poster from '../components/Poster.jsx'
 
 const MAX_YEAR = new Date().getFullYear() + 5
 const EMPTY = {
   title: '', director: '', genre_id: '', year: '', country: '', duration: '', rating: '',
-  description: '', is_watched: false,
+  description: '', poster_url: '', is_watched: false,
 }
 
 // Проверка на клиенте (повторяет правила бэкенда, чтобы не ждать ответа сервера)
@@ -26,6 +27,8 @@ function validate(f) {
   if (f.rating === '' || Number(f.rating) < 0 || Number(f.rating) > 10)
     e.rating = 'Число от 0 до 10'
   if (f.description.length > 1000) e.description = 'Максимум 1000 символов'
+  if (f.poster_url.trim() && !/^https?:\/\//.test(f.poster_url.trim()))
+    e.poster_url = 'Ссылка должна начинаться с http:// или https://'
   return e
 }
 
@@ -72,6 +75,7 @@ export default function MovieFormPage() {
       director: form.director.trim(),
       country: form.country.trim(),
       description: form.description.trim(),
+      poster_url: form.poster_url.trim(),
       year: Number(form.year),
       duration: Number(form.duration),
       rating: Number(form.rating),
@@ -158,6 +162,23 @@ export default function MovieFormPage() {
               <textarea {...field('description', { rows: 3, maxLength: 1000 })} />
               <div className="form-text text-end">{form.description.length}/1000</div>
               {feedback('description')}
+            </div>
+            <div className="col-12">
+              <label htmlFor="poster_url" className="form-label">Ссылка на обложку</label>
+              <div className="d-flex gap-3 align-items-start">
+                <div className="flex-grow-1">
+                  <input {...field('poster_url', { type: 'url', maxLength: 500,
+                    placeholder: 'https://upload.wikimedia.org/…/poster.jpg' })} />
+                  {feedback('poster_url')}
+                  <div className="form-text">
+                    Необязательно. Прямая ссылка на картинку (jpg, png, webp). Без обложки
+                    показывается значок жанра.
+                  </div>
+                </div>
+                <Poster url={form.poster_url.trim()} title={form.title}
+                        genre={genres.find((g) => String(g.id) === String(form.genre_id))?.name}
+                        size="preview" />
+              </div>
             </div>
             <div className="col-12">
               <div className="form-check form-switch">

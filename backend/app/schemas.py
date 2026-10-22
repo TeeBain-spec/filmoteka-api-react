@@ -11,6 +11,12 @@ def max_year() -> int:
     return date.today().year + 5  # разрешаем анонсированные фильмы
 
 
+def _check_url(value):
+    if value and not value.startswith(("http://", "https://")):
+        raise ValueError("Ссылка на обложку должна начинаться с http:// или https://")
+    return value
+
+
 class _Input(BaseModel):
     # обрезаем пробелы по краям строк и запрещаем неизвестные поля
     model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
@@ -57,9 +63,12 @@ class MovieBase(_Input):
     rating: float = Field(..., ge=0, le=10, description="Рейтинг 0–10", examples=[8.7])
     duration: int = Field(..., gt=0, le=1000, description="Длительность, мин", examples=[169])
     is_watched: bool = Field(False, description="Просмотрен")
+    poster_url: str = Field("", max_length=500, description="Ссылка на обложку (http/https)",
+                            examples=["https://upload.wikimedia.org/wikipedia/en/b/bc/Interstellar_film_poster.jpg"])
     genre_id: int = Field(..., gt=0, description="ID жанра", examples=[3])
 
     validate_year = field_validator("year")(_check_year)
+    validate_url = field_validator("poster_url")(_check_url)
 
     @field_validator("rating")
     @classmethod
@@ -86,9 +95,11 @@ class MoviePatch(_Input):
     rating: Optional[float] = Field(None, ge=0, le=10)
     duration: Optional[int] = Field(None, gt=0, le=1000)
     is_watched: Optional[bool] = None
+    poster_url: Optional[str] = Field(None, max_length=500)
     genre_id: Optional[int] = Field(None, gt=0)
 
     validate_year = field_validator("year")(_check_year)
+    validate_url = field_validator("poster_url")(_check_url)
 
     @model_validator(mode="after")
     def _not_empty(self):
@@ -109,6 +120,7 @@ class MovieOut(BaseModel):
     rating: float
     duration: int
     is_watched: bool
+    poster_url: str
     genre_id: int
     genre_name: str
     created_at: datetime

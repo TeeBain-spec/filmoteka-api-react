@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { deleteMovie, errorMessage, getMovies, patchMovie } from '../api/client.js'
 import ConfirmModal from '../components/ConfirmModal.jsx'
 import Pagination from '../components/Pagination.jsx'
+import Poster from '../components/Poster.jsx'
 import RatingBadge from '../components/RatingBadge.jsx'
 import { formatDuration } from '../utils.js'
 
@@ -114,10 +115,15 @@ export default function MovieListPage() {
                 <tr key={m.id}>
                   <td className="text-secondary">{m.id}</td>
                   <td>
-                    <Link to={`/movies/${m.id}`} className="fw-semibold text-decoration-none">
-                      {m.title}
-                    </Link>
-                    <div className="small text-secondary">{m.director}</div>
+                    <div className="d-flex align-items-center gap-2">
+                      <Poster url={m.poster_url} genre={m.genre_name} title={m.title} size="thumb" />
+                      <div>
+                        <Link to={`/movies/${m.id}`} className="fw-semibold text-decoration-none">
+                          {m.title}
+                        </Link>
+                        <div className="small text-secondary">{m.director}</div>
+                      </div>
+                    </div>
                   </td>
                   <td>{m.genre_name}</td>
                   <td>{m.year}</td>

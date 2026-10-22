@@ -10,17 +10,34 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, RedirectResponse
+from sqlalchemy import inspect, text
 
 from .database import Base, SessionLocal, engine
 from .routers import genres, movies, stats
-from .seed import seed_if_empty
+from .seed import fill_missing_posters, seed_if_empty
+
+
+def _migrate() -> bool:
+    """Простейшая миграция: в базе, созданной до появления обложек, добавляем колонку.
+    Возвращает True, если колонка была добавлена."""
+    columns = {c["name"] for c in inspect(engine).get_columns("movies")}
+    if "poster_url" in columns:
+        return False
+    with engine.begin() as conn:
+        conn.execute(text(
+            "ALTER TABLE movies ADD COLUMN poster_url VARCHAR(500) NOT NULL DEFAULT ''"
+        ))
+    return True
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     Base.metadata.create_all(bind=engine)  # создаём таблицы, если их нет
+    migrated = _migrate()
     with SessionLocal() as db:
         seed_if_empty(db)  # стартовые данные
+        if migrated:
+            fill_missing_posters(db)  # обложки для фильмов из старой базы
     yield
 
 

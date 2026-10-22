@@ -64,6 +64,32 @@ MOVIES = [
 ]
 
 
+# Обложки: постеры из статей англоязычной Википедии (upload.wikimedia.org)
+POSTERS = {
+    "Побег из Шоушенка": "https://upload.wikimedia.org/wikipedia/en/8/81/ShawshankRedemptionMoviePoster.jpg",
+    "Зелёная миля": "https://upload.wikimedia.org/wikipedia/en/e/e2/The_Green_Mile_%28movie_poster%29.jpg",
+    "Форрест Гамп": "https://upload.wikimedia.org/wikipedia/en/6/67/Forrest_Gump_poster.jpg",
+    "Москва слезам не верит": "https://upload.wikimedia.org/wikipedia/en/a/a3/Moscow_for_US.jpg",
+    "Иван Васильевич меняет профессию": "https://upload.wikimedia.org/wikipedia/en/c/c6/Ivan_Vasilievich_poster.jpg",
+    "Бриллиантовая рука": "https://upload.wikimedia.org/wikipedia/en/9/90/Brilruka.jpg",
+    "1+1": "https://upload.wikimedia.org/wikipedia/en/9/93/The_Intouchables.jpg",
+    "Интерстеллар": "https://upload.wikimedia.org/wikipedia/en/b/bc/Interstellar_film_poster.jpg",
+    "Начало": "https://upload.wikimedia.org/wikipedia/en/2/2e/Inception_%282010%29_theatrical_poster.jpg",
+    "Матрица": "https://upload.wikimedia.org/wikipedia/en/d/db/The_Matrix.png",
+    "Дюна": "https://upload.wikimedia.org/wikipedia/en/8/8e/Dune_%282021_film%29.jpg",
+    "Тёмный рыцарь": "https://upload.wikimedia.org/wikipedia/en/1/1c/The_Dark_Knight_%282008_film%29.jpg",
+    "Безумный Макс: Дорога ярости": "https://upload.wikimedia.org/wikipedia/en/6/6e/Mad_Max_Fury_Road.jpg",
+    "Остров проклятых": "https://upload.wikimedia.org/wikipedia/en/7/76/Shutterislandposter.jpg",
+    "Молчание ягнят": "https://upload.wikimedia.org/wikipedia/en/8/86/The_Silence_of_the_Lambs_poster.jpg",
+    "Криминальное чтиво": "https://upload.wikimedia.org/wikipedia/en/3/3b/Pulp_Fiction_%281994%29_poster.jpg",
+    "Крёстный отец": "https://upload.wikimedia.org/wikipedia/en/1/1c/Godfather_ver1.jpg",
+    "Брат": "https://upload.wikimedia.org/wikipedia/en/4/4f/BrotherPoster.jpg",
+    "Унесённые призраками": "https://upload.wikimedia.org/wikipedia/en/d/db/Spirited_Away_Japanese_poster.png",
+    "Король Лев": "https://upload.wikimedia.org/wikipedia/en/3/3d/The_Lion_King_poster.jpg",
+    "ВАЛЛ·И": "https://upload.wikimedia.org/wikipedia/en/4/4c/WALL-E_poster.jpg",
+}
+
+
 def seed_if_empty(db: Session) -> None:
     if db.scalar(select(func.count(Genre.id))):
         return
@@ -74,5 +100,14 @@ def seed_if_empty(db: Session) -> None:
         db.add(Movie(
             title=title, year=year, director=director, country=country, duration=duration,
             rating=rating, is_watched=watched, genre_id=genres[genre].id, description=desc,
+            poster_url=POSTERS.get(title, ""),
         ))
+    db.commit()
+
+
+def fill_missing_posters(db: Session) -> None:
+    """Для базы, созданной до появления обложек: проставить их стартовым фильмам."""
+    for movie in db.scalars(select(Movie).where(Movie.poster_url == "")):
+        if movie.title in POSTERS:
+            movie.poster_url = POSTERS[movie.title]
     db.commit()
