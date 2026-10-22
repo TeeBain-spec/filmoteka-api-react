@@ -1,5 +1,4 @@
 import { Link, NavLink } from 'react-router-dom'
-import { API_URL } from '../api/client.js'
 
 const links = [
   { to: '/', label: 'Фильмы', icon: 'bi-film', end: true },
@@ -23,13 +22,6 @@ export default function NavBar() {
               </NavLink>
             </li>
           ))}
-          <li className="nav-item">
-            {/* документация API (Swagger UI) — открывается в новой вкладке */}
-            <a className="nav-link" href={`${API_URL}/docs`} target="_blank" rel="noreferrer">
-              <i className="bi bi-braces me-1" />
-              <span className="d-none d-md-inline">API</span>
-            </a>
-          </li>
         </ul>
         <Link className="btn btn-warning btn-sm fw-semibold" to="/movies/new">
           <i className="bi bi-plus-lg me-1" />
