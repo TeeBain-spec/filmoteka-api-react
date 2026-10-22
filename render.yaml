@@ -1,0 +1,9 @@
+# Blueprint для Render.com: New → Blueprint → выбрать этот репозиторий → Deploy.
+services:
+  - type: web
+    name: filmoteka
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
